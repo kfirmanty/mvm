@@ -47,4 +47,16 @@ describe('Vm test', () => {
         await vm.run({}, machine);
         expect(vm.getRegister(machine, "n")).to.equal(42);
     });
+    it('should jump if true', async () => {
+        const parsed = parser.parse('+ 42 > 40 ? TEST - 42 @TEST');
+        const machine = vm.init(parsed);
+        await vm.run({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(42);
+    });
+    it('should jump if false', async () => {
+        const parsed = parser.parse('+ 42 < 40 ?! TEST - 42 @TEST');
+        const machine = vm.init(parsed);
+        await vm.run({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(42);
+    });
 });

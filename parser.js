@@ -44,7 +44,7 @@ const consumeArg = tokens => {
     else {
         arg = eatNumber(tokens);
     }
-    return arg;
+    return parseArg(arg);
 }
 
 
@@ -60,7 +60,7 @@ const parse = text => {
                 break;
             case '@': //label
             case "j": //jump unconditional
-                commands.push({ operator, arg: parseArg(consumeArg(tokens)) });
+                commands.push({ operator, arg: consumeArg(tokens) });
                 break;
             case '?':
                 let op = "?";
@@ -78,21 +78,28 @@ const parse = text => {
                 const nextToken = peek(tokens);
                 if (nextToken && (isNumber(nextToken) ||
                     isRegister(nextToken))) {
-                    commands.push({ operator, arg: parseArg(consumeArg(tokens)) });
+                    commands.push({ operator, arg: consumeArg(tokens) });
                 } else {
                     commands.push({ operator });
                 }
                 break
+            case "<":
+            case ">":
+                let boolOp = operator;
+                if (peek(tokens) == "=") { //== comparision operator
+                    boolOp = boolOp + "="
+                };
+                commands.push({ operator: boolOp, arg: consumeArg(tokens) });
+                break;
             case '=':
                 op = "="
                 if (peek(tokens) == "=") { //== comparision operator
                     op = "=="
                 }
-                commands.push({ operator, arg: parseArg(consumeArg(tokens)) });
+                commands.push({ op, arg: consumeArg(tokens) });
                 break;
             default: // operators taking one arg
-                const arg = consumeArg(tokens);
-                commands.push({ operator, arg: parseArg(arg) });
+                commands.push({ operator, arg: consumeArg(tokens) });
                 break;
         }
     }

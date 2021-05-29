@@ -30,12 +30,21 @@ const init = (commands) => ({
 
 const getRegister = (vm, register) => vm.registers[vm.ri][register];
 const setRegister = (vm, register, val) => (vm.registers[vm.ri][register] = val);
+
 const mathOpToFn = {
     "+": (v1, v2) => v1 + v2,
     "-": (v1, v2) => v1 - v2,
     "*": (v1, v2) => v1 * v2,
     "/": (v1, v2) => v1 / v2
-}
+};
+
+const booleanOpToFn = {
+    ">": (v1, v2) => v1 > v2,
+    "<": (v1, v2) => v1 < v2,
+    ">=": (v1, v2) => v1 >= v2,
+    "<=": (v1, v2) => v1 <= v2,
+    "==": (v1, v2) => v1 == v2
+};
 
 const argVal = (vm, arg) => {
     let argVal = 0;
@@ -45,7 +54,7 @@ const argVal = (vm, arg) => {
         argVal = getRegister(vm, arg.value);
     }
     return argVal;
-}
+};
 
 const findLabelPC = (vm, label) => {
     let pc = -1;
@@ -57,7 +66,7 @@ const findLabelPC = (vm, label) => {
         }
     }
     return pc;
-}
+};
 
 const jump = (vm, arg) => {
     let pc = -1;
@@ -70,7 +79,7 @@ const jump = (vm, arg) => {
         throw new VMException(`couldn't find jump place for arg ${arg}`);
     }
     vm.pc = pc;
-}
+};
 /*
 ! - bang - send midi
 : - switch index
@@ -97,6 +106,13 @@ const step = async (system, vm) => {
             let currentRegisterVal = getRegister(vm, vm.cr);
             setRegister(vm, vm.cr, mathOpToFn[command.operator](currentRegisterVal, arg));
             break;
+        case ">":
+        case "<":
+        case ">=":
+        case "<=":
+        case "==":
+            setRegister(vm, "t", booleanOpToFn[command.operator](getRegister(vm, vm.cr), argVal(vm, command.arg)));
+            break;
         case "=":
             setRegister(vm, vm.cr, argVal(vm, command.arg));
             break;
@@ -118,10 +134,10 @@ const step = async (system, vm) => {
             jump(vm, command.arg);
             break;
         case "?":
-            getRegister(vm, "t") == 1 ? jump(vm, command.arg) : null;
+            getRegister(vm, "t") == true ? jump(vm, command.arg) : null;
             break;
         case "?!":
-            getRegister(vm, "t") == 0 ? jump(vm, command.arg) : null;
+            getRegister(vm, "t") == false ? jump(vm, command.arg) : null;
             break;
     }
     vm.pc += 1;
