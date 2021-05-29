@@ -72,6 +72,9 @@ const step = (system, vm) => {
         case "|":
             vm.cr = command.arg.value;
             break;
+        case "!":
+            system.midi.sendMsg({ type: "note_on", note: getRegister(vm, "n"), velocity: getRegister(vm, "v"), channel: getRegister(vm, "c") });
+            break;
     }
     vm.pc += 1;
 };

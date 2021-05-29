@@ -1,4 +1,5 @@
 const chai = require('chai');
+const midi = require('midi');
 const expect = chai.expect;
 const parser = require('../parser.js');
 const vm = require('../vm.js');
@@ -32,5 +33,18 @@ describe('Vm test', () => {
         expect(vm.getRegister(machine, "r")).to.equal(0);
         vm.step({}, machine);
         expect(vm.getRegister(machine, "n")).to.equal(2);
+    });
+    it('should send midi on bang', () => {
+        const parsed = parser.parse('+ 48 | v + 100 !');
+        const machine = vm.init(parsed);
+        const midi = { sendMsg: (msg) => expect(msg).to.deep.equal({ type: "note_on", note: 48, velocity: 100, channel: 0 }) };
+        const system = { midi };
+        vm.step(system, machine);
+        vm.step(system, machine);
+        vm.step(system, machine);
+        vm.step(system, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(48);
+        expect(vm.getRegister(machine, "v")).to.equal(100);
+
     });
 });
