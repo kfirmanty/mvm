@@ -8,30 +8,45 @@ const peek = (arr) => arr[0];
 
 const isRegister = v => v == 'n' || v == 'v' || v == 'd' || v == 'r';
 const isNumber = v => v.match(/\d+/);
+const isLabel = v => v.match(/[A-Z]/);
 
 const parseArg = arg => ({
-    type: isNumber(arg) ? 'number' : 'register',
+    type: isNumber(arg) ? 'number'
+        : isLabel(arg) ? 'label'
+            : 'register',
     value: isNumber(arg) ? parseInt(arg) : arg
 })
 
-const eatNumber = tokens => {
-    let numStr = "";
-    while (peek(tokens) && peek(tokens).match(/\d/)) {
-        numStr += pop(tokens);
+const eat = (tokens, match) => {
+    let str = "";
+    while (peek(tokens) && peek(tokens).match(match)) {
+        str += pop(tokens);
     };
-    return numStr;
+    return str;
 }
+
+const eatUppercase = tokens =>
+    eat(tokens, /[A-Z]/);
+
+const eatNumber = tokens =>
+    eat(tokens, /\d/);
+
+const consumeLabel = tokens => ({ type: "label", value: eatUppercase(tokens) });
 
 const consumeArg = tokens => {
     const nextToken = peek(tokens);
     let arg;
     if (isRegister(nextToken)) {
         arg = pop(tokens);
-    } else {
+    } else if (isLabel(nextToken)) {
+        arg = eatUppercase(tokens);
+    }
+    else {
         arg = eatNumber(tokens);
     }
     return arg;
 }
+
 
 const parse = text => {
     let tokens = text.replace(/\s+/g, "");
@@ -43,6 +58,19 @@ const parse = text => {
             case '!': // no arg operators
                 commands.push({ operator });
                 break;
+            case '@': //label
+            case "j": //jump unconditional
+                commands.push({ operator, arg: parseArg(consumeArg(tokens)) });
+                break;
+            case '?':
+                let op = "?";
+                const next = peek(tokens);
+                if (next == "!") {
+                    pop(tokens);
+                    op = "?!";
+                }
+                commands.push({ operator: op, arg: consumeLabel(tokens) });
+                break;
             case 'n':
             case 'v':
             case 'd':
@@ -50,12 +78,18 @@ const parse = text => {
                 const nextToken = peek(tokens);
                 if (nextToken && (isNumber(nextToken) ||
                     isRegister(nextToken))) {
-                    const arg = consumeArg(tokens);
-                    commands.push({ operator, arg: parseArg(arg) });
+                    commands.push({ operator, arg: parseArg(consumeArg(tokens)) });
                 } else {
                     commands.push({ operator });
                 }
                 break
+            case '=':
+                op = "="
+                if (peek(tokens) == "=") { //== comparision operator
+                    op = "=="
+                }
+                commands.push({ operator, arg: parseArg(consumeArg(tokens)) });
+                break;
             default: // operators taking one arg
                 const arg = consumeArg(tokens);
                 commands.push({ operator, arg: parseArg(arg) });

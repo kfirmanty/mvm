@@ -41,4 +41,10 @@ describe('Vm test', () => {
         expect(vm.getRegister(machine, "v")).to.equal(100);
 
     });
+    it('should jump unconditional', async () => {
+        const parsed = parser.parse('+ 42 j TEST + 100 @TEST');
+        const machine = vm.init(parsed);
+        await vm.run({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(42);
+    });
 });
