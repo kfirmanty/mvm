@@ -35,4 +35,4 @@ const sendMsg = (midi, msg) => {
     }
 };
 
-exports = { start, stop, sendMsg };
+module.exports = { start, stop, sendMsg };
