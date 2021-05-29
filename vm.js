@@ -55,7 +55,7 @@ const argVal = (vm, arg) => {
 l - label
 n v d r t c - registers
 */
-const step = (system, vm) => {
+const step = async (system, vm) => {
     const command = vm.commands[vm.pc];
     switch (command.operator) {
         case "+":
@@ -75,12 +75,20 @@ const step = (system, vm) => {
         case "!":
             system.midi.sendMsg({ type: "note_on", note: getRegister(vm, "n"), velocity: getRegister(vm, "v"), channel: getRegister(vm, "c") });
             break;
+        case ".":
+            await system.clock.schedule(argVal(vm, command.arg));
+            break;
     }
     vm.pc += 1;
 };
 
-const tick = (system, vm) => {
-
+const run = async (system, vm) => {
+    while (true) {
+        await step(system, vm);
+        if (vm.pc >= vm.commands.length) {
+            break;
+        }
+    }
 };
 
-module.exports = { init, step, getRegister };
+module.exports = { init, step, getRegister, run };

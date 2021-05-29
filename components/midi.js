@@ -7,7 +7,6 @@ const midi = require('midi');
 */
 const sendMsg = (output, msg) => {
     let vals;
-    console.log("MIDI", msg);
     if (msg.type == 'cc') {
         vals = [msg.channel + 0xb0, msg.cc, Math.floor(msg.value)];
     } else if (msg.type == 'note_on') {
@@ -27,7 +26,8 @@ const sendMsg = (output, msg) => {
 
 const start = config => {
     const output = new midi.Output();
-    output.openVirtualPort(config.name || 'mvm');
+    //output.openVirtualPort(config.name || 'mvm');
+    output.openPort(0);
     const sendMsgFn = (msg) => sendMsg(output, msg);
     return { output, sendMsg: sendMsgFn };
 };
