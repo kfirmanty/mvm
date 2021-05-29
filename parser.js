@@ -14,8 +14,28 @@ const parseArg = arg => ({
     value: isNumber(arg) ? parseInt(arg) : arg
 })
 
+const eatNumber = tokens => {
+    let numStr = "";
+    while (peek(tokens) && peek(tokens).match(/\d/)) {
+        numStr += pop(tokens);
+    };
+    return numStr;
+}
+
+const consumeArg = tokens => {
+    const nextToken = peek(tokens);
+    let arg;
+    if (isRegister(nextToken)) {
+        arg = pop(tokens);
+    } else {
+        arg = eatNumber(tokens);
+    }
+    return arg;
+}
+
 const parse = text => {
-    const tokens = text.split(/\s+/);
+    let tokens = text.replace(/\s+/g, "");
+    tokens = tokens.split("");
     const commands = [];
     while (tokens.length > 0) {
         const operator = pop(tokens);
@@ -30,14 +50,14 @@ const parse = text => {
                 const nextToken = peek(tokens);
                 if (nextToken && (isNumber(nextToken) ||
                     isRegister(nextToken))) {
-                    const arg = pop(tokens);
+                    const arg = consumeArg(tokens);
                     commands.push({ operator, arg: parseArg(arg) });
                 } else {
                     commands.push({ operator });
                 }
                 break
             default: // operators taking one arg
-                const arg = pop(tokens);
+                const arg = consumeArg(tokens);
                 commands.push({ operator, arg: parseArg(arg) });
                 break;
         }

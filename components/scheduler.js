@@ -27,5 +27,4 @@ const start = ({ tick }) => {
     return { schedule };
 }
 
-
 module.exports = { start }
