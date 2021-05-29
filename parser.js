@@ -1,18 +1,3 @@
-/*
-! - bang - send midi
-: - switch index
-+-/* - math
-|| && < > <= >= == - logic
-? - jump to label
-!? - if not true jump to label
-= - assign
-. - wait till `n` next tick
-, - wait for full `n` ticks from when the operator was called
-| - register select
-l - label
-n v d r t c - registers
-*/
-
 const pop = (arr) => {
     const val = arr[0];
     arr.shift();

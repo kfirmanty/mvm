@@ -31,6 +31,30 @@ const mathOpToFn = {
     "*": (v1, v2) => v1 * v2,
     "/": (v1, v2) => v1 / v2
 }
+
+const argVal = (vm, arg) => {
+    let argVal = 0;
+    if (arg.type === "number") {
+        argVal = arg.value;
+    } else {
+        argVal = getRegister(vm, arg.value);
+    }
+    return argVal;
+}
+/*
+! - bang - send midi
+: - switch index
++-/* - math
+|| && < > <= >= == - logic
+? - jump to label
+!? - if not true jump to label
+= - assign
+. - wait till `n` next tick
+, - wait for full `n` ticks from when the operator was called
+| - register select
+l - label
+n v d r t c - registers
+*/
 const step = (system, vm) => {
     const command = vm.commands[vm.pc];
     switch (command.operator) {
@@ -38,14 +62,15 @@ const step = (system, vm) => {
         case "-":
         case "*":
         case "/":
-            let arg = 0;
-            if (command.arg.type === "number") {
-                arg = command.arg.value;
-            } else {
-                arg = getRegister(vm, command.arg.value);
-            }
+            const arg = argVal(vm, command.arg);
             let currentRegisterVal = getRegister(vm, vm.cr);
             setRegister(vm, vm.cr, mathOpToFn[command.operator](currentRegisterVal, arg));
+            break;
+        case ":":
+            vm.ri = argVal(vm, command.arg) % vm.registers.length;
+            break;
+        case "|":
+            vm.cr = command.arg.value;
             break;
     }
     vm.pc += 1;

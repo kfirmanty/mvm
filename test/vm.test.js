@@ -13,4 +13,24 @@ describe('Vm test', () => {
         vm.step({}, machine);
         expect(vm.getRegister(machine, "n")).to.equal(42);
     });
+    it('should properly switch indexes', () => {
+        const parsed = parser.parse('+ 2 : 1 : 0');
+        const machine = vm.init(parsed);
+        vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(2);
+        vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(0);
+        vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(2);
+    });
+    it('should properly switch registers', () => {
+        const parsed = parser.parse('+ 2 | r | n');
+        const machine = vm.init(parsed);
+        vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(2);
+        vm.step({}, machine);
+        expect(vm.getRegister(machine, "r")).to.equal(0);
+        vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(2);
+    });
 });
