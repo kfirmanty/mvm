@@ -10,7 +10,7 @@
 , - wait for full `n` ticks from when the operator was called
 | - register select
 l - label
-n v d r t - registers
+n v d r t c - registers
 */
 
 const pop = (arr) => {
