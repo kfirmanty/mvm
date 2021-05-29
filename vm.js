@@ -1,14 +1,15 @@
 const repeat = (val, n) => {
-    let arr = [];
+    const arr = [];
     for (i = 0; i < n; i++) {
-        arr[i] = { ...val }
+        arr[i] = { ...val };
     }
     return arr;
-}
+};
+
 const init = (commands) => ({
     commands,
     pc: 0,
-    ri: 0, //register index
+    ri: 0, // register index
     registers: repeat(
         {
             n: 0,
@@ -19,7 +20,7 @@ const init = (commands) => ({
             t: 0
         }, 16
     )
-})
+});
 
 const step = (system, vm) => {
     const command = vm.commands[vm.pc];
@@ -27,8 +28,8 @@ const step = (system, vm) => {
 
     }
     vm.pc += 1;
-}
+};
 
 const tick = (system, vm) => {
 
-}
+};

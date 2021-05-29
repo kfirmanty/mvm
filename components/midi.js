@@ -1,15 +1,15 @@
-const midi = require("midi");
+const midi = require('midi');
 
 const start = config => {
     const output = new midi.Output();
-    output.openVirtualPort(config.name || "mvm");
+    output.openVirtualPort(config.name || 'mvm');
     return { output };
-}
+};
 
 const stop = midi => {
     output.close();
     return {};
-}
+};
 
 /*
   8x	note, velocity	Note off
@@ -18,9 +18,9 @@ const stop = midi => {
 */
 const sendMsg = (midi, msg) => {
     let vals;
-    if (msg.type == "cc") {
+    if (msg.type == 'cc') {
         vals = [msg.channel + 0xb0, msg.cc, Math.floor(msg.value)];
-    } else if (msg.type == "note_on") {
+    } else if (msg.type == 'note_on') {
         vals = [
             msg.channel + 0x90,
             Math.floor(msg.note),
