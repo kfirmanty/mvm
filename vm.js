@@ -23,13 +23,44 @@ const init = (commands) => ({
             v: 0,
             d: 0,
             r: 0,
-            t: 0
+            t: 0,
+            s: 0
         }, 16
     )
 });
 
+const scaleRegisterToScale = {
+    0: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    1: [0, 2, 4, 5, 7, 9, 11],
+    2: [0, 2, 3, 5, 6, 7, 10]
+}
+const applyScaleRegister = (vm, val) => {
+    const scaleVal = getRegister(vm, "s");
+    if (scaleVal == 0) {
+        return val;
+    }
+    const step = val % 12;
+    const octave = Math.floor(val / 12);
+    let note = val;
+    const scale = scaleRegisterToScale[scaleVal];
+    //find first equal scale step or bigger and reconstruct pitch
+    for (i = 0; i < scale.length; i++) {
+        if (scale[i] == step || scale[i] > step) {
+            note = scale[i] + (octave * 12);
+            break;
+        }
+    }
+    return note;
+}
+
 const getRegister = (vm, register) => vm.registers[vm.ri][register];
-const setRegister = (vm, register, val) => (vm.registers[vm.ri][register] = val);
+const setRegister = (vm, register, val) => {
+    if (register == "n") {
+        vm.registers[vm.ri][register] = applyScaleRegister(vm, val);
+    } else {
+        vm.registers[vm.ri][register] = val;
+    }
+}
 
 const mathOpToFn = {
     "+": (v1, v2) => v1 + v2,
@@ -80,6 +111,7 @@ const jump = (vm, arg) => {
     }
     vm.pc = pc;
 };
+
 /*
 ! - bang - send midi
 : - switch index
@@ -94,6 +126,7 @@ j - jump unconditional
 | - register select
 l - label
 n v d r t c - registers
+s - special scale register - affects math. 0 is chromatic, 1 major, 2 minor
 */
 const step = async (system, vm) => {
     const command = vm.commands[vm.pc];
@@ -112,6 +145,9 @@ const step = async (system, vm) => {
         case "<=":
         case "==":
             setRegister(vm, "t", booleanOpToFn[command.operator](getRegister(vm, vm.cr), argVal(vm, command.arg)));
+            break;
+        case "s":
+            setRegister(vm, "s", argVal(vm, command.arg));
             break;
         case "=":
             setRegister(vm, vm.cr, argVal(vm, command.arg));
@@ -144,7 +180,7 @@ const step = async (system, vm) => {
 };
 
 const run = async (system, vm) => {
-    const maxStepsPerRun = system.maxStepsPerRun || 1000;
+    const maxStepsPerRun = system.maxStepsPerRun || 1000; // maxStepsPerRun is mostly used when VM would jump in such way that it would never end execution
     if (vm.pc >= vm.commands.length) {
         vm.pc = vm.pc % vm.commands.length;
     }
