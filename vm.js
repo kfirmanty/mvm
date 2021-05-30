@@ -18,13 +18,16 @@ const init = (commands) => ({
     cr: "n", // current register
     registers: repeat(
         {
-            n: 0,
-            c: 0,
-            v: 0,
-            d: 0,
-            r: 0,
-            t: 0,
-            s: 0
+            n: 0, // note register
+            c: 0, // channel register
+            v: 0, // velocity register
+            d: 0, // duration register
+            r: 0, // random register
+            t: 0, // boolean logic register
+            s: 0, // scale register
+            x: 0, // x,y,z general purpouse registers
+            y: 0,
+            z: 0
         }, 16
     )
 });
