@@ -36,13 +36,12 @@ const consumeLabel = tokens => ({ type: "label", value: eatUppercase(tokens) });
 const consumeArg = tokens => {
     const nextToken = peek(tokens);
     let arg;
-    if (isRegister(nextToken)) {
-        arg = pop(tokens);
+    if (isNumber(nextToken)) {
+        arg = eatNumber(tokens);
     } else if (isLabel(nextToken)) {
         arg = eatUppercase(tokens);
-    }
-    else {
-        arg = eatNumber(tokens);
+    } else {
+        arg = pop(tokens);
     }
     return parseArg(arg);
 }
@@ -85,7 +84,7 @@ const parse = text => {
             case "<":
             case ">":
                 let boolOp = operator;
-                if (peek(tokens) == "=") { //== comparision operator
+                if (peek(tokens) == "=") { //>= <= comparision operators
                     boolOp = boolOp + "="
                 };
                 commands.push({ operator: boolOp, arg: consumeArg(tokens) });

@@ -19,9 +19,9 @@ const init = (commands) => ({
     registers: repeat(
         {
             n: 0, // note register
-            c: 0, // channel register
             v: 0, // velocity register
             d: 0, // duration register
+            c: 0, // channel register
             r: 0, // random register
             t: 0, // boolean logic register
             s: 0, // scale register
@@ -107,7 +107,7 @@ const jump = (vm, arg) => {
     if (arg.type == "label") {
         pc = findLabelPC(vm, arg.value);
     } else {
-        pc = vm.pc + argVal(vm, arg);
+        pc = argVal(vm, arg) - 1;
     }
     if (pc == -1) {
         throw new VMException(`couldn't find jump place for arg ${arg}`);

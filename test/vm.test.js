@@ -70,4 +70,10 @@ describe('Vm test', () => {
         await vm.step({}, machine);
         expect(vm.getRegister(machine, "n")).to.equal(52);
     });
+    it('should call fn once', async () => {
+        const parsed = parser.parse('j CODE @ADDHUNDRED + 100 j z @CODE + 1 | z + 10 | n j ADDHUNDRED + 2');
+        const machine = vm.init(parsed);
+        await vm.run({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(103);
+    });
 });

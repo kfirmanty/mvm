@@ -5,7 +5,6 @@ const start = ({ tick }) => {
         const p = new Promise((resolve, reject) => {
             signals.push({ t: ticks, p: resolve });
         });
-        console.log('schedule', cycle, ticks);
         return p;
     }
 
