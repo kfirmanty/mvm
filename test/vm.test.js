@@ -60,12 +60,14 @@ describe('Vm test', () => {
         expect(vm.getRegister(machine, "n")).to.equal(42);
     });
     it('should respect scale register when doing math on n register', async () => {
-        const parsed = parser.parse('s 1 + 1 + 1');
+        const parsed = parser.parse('s 1 + 1 + 1 + 48');
         const machine = vm.init(parsed);
         await vm.step({}, machine);
         await vm.step({}, machine);
         expect(vm.getRegister(machine, "n")).to.equal(2);
         await vm.step({}, machine);
         expect(vm.getRegister(machine, "n")).to.equal(4);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(52);
     });
 });
