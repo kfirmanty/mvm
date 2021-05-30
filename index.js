@@ -1,10 +1,12 @@
 const midi = require("./components/midi.js");
 const scheduler = require("./components/scheduler.js");
-
 const parser = require("./parser.js");
 const vm = require("./vm.js")
+const fs = require('fs')
 
-const parsed = parser.parse('+ 48 | v + 100 . 4 ! | n + 12 . 2 ! . 2 !');
+const [file, ...rest] = process.argv.slice(2);
+const source = fs.readFileSync(file, 'utf8')
+const parsed = parser.parse(source);
 const machine = vm.init(parsed);
 const midiPort = midi.start({});
 const clock = scheduler.start({ tick: 500 });

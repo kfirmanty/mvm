@@ -49,8 +49,7 @@ const consumeArg = tokens => {
 
 
 const parse = text => {
-    let tokens = text.replace(/\s+/g, "");
-    tokens = tokens.split("");
+    let tokens = text.replace(/\s+/g, "").replace(/\r?\n|\r/g).split("");
     const commands = [];
     while (tokens.length > 0) {
         const operator = pop(tokens);
