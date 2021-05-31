@@ -20,7 +20,6 @@ const sendMsg = (output, msg) => {
         }, 100);
     }
     if (vals != null) {
-        console.log(vals);
         output.sendMessage(vals);
     }
 };

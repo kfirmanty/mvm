@@ -4,8 +4,8 @@
 @ z
 |CODE
 + 1
-| z
+z
 + 10
-| n
+n
 @ ADDHUNDRED
 + 2

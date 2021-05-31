@@ -6,7 +6,6 @@ const pop = (arr) => {
 
 const peek = (arr) => arr[0];
 
-const isRegister = (v) => v == "n" || v == "v" || v == "d" || v == "r";
 const isNumber = (v) => v.match(/\d+/);
 const isLabel = (v) => v.match(/[A-Z]/);
 
@@ -76,8 +75,12 @@ const parse = (text) => {
             case "n":
             case "v":
             case "d":
+            case "c":
             case "s":
-            case "r": // registers take one arg or 0 depending if next token is register or number
+            case "r":
+            case "x":
+            case "y":
+            case "z": // registers take one arg or 0 depending if next token is register or number
                 commands.push({
                     operator: "reg",
                     arg: { type: "register", value: operator },
