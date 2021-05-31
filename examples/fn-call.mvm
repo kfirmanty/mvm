@@ -1,11 +1,11 @@
-j CODE
-@ADDHUNDRED
+@ CODE
+|ADDHUNDRED
 + 100
-j z
-@CODE
+@ z
+|CODE
 + 1
 | z
 + 10
 | n
-j ADDHUNDRED
+@ ADDHUNDRED
 + 2

@@ -1,6 +1,6 @@
 function VMException(message) {
     this.message = message;
-    this.name = 'VMException';
+    this.name = "VMException";
 }
 
 const repeat = (val, n) => {
@@ -27,16 +27,17 @@ const init = (commands) => ({
             s: 0, // scale register
             x: 0, // x,y,z general purpouse registers
             y: 0,
-            z: 0
-        }, 16
-    )
+            z: 0,
+        },
+        6
+    ),
 });
 
 const scaleRegisterToScale = {
     0: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
     1: [0, 2, 4, 5, 7, 9, 11],
-    2: [0, 2, 3, 5, 6, 7, 10]
-}
+    2: [0, 2, 3, 5, 6, 7, 10],
+};
 const applyScaleRegister = (vm, val) => {
     const scaleVal = getRegister(vm, "s");
     if (scaleVal == 0) {
@@ -49,12 +50,12 @@ const applyScaleRegister = (vm, val) => {
     //find first equal scale step or bigger and reconstruct pitch
     for (i = 0; i < scale.length; i++) {
         if (scale[i] == step || scale[i] > step) {
-            note = scale[i] + (octave * 12);
+            note = scale[i] + octave * 12;
             break;
         }
     }
     return note;
-}
+};
 
 const getRegister = (vm, register) => vm.registers[vm.ri][register];
 const setRegister = (vm, register, val) => {
@@ -63,13 +64,13 @@ const setRegister = (vm, register, val) => {
     } else {
         vm.registers[vm.ri][register] = val;
     }
-}
+};
 
 const mathOpToFn = {
     "+": (v1, v2) => v1 + v2,
     "-": (v1, v2) => v1 - v2,
     "*": (v1, v2) => v1 * v2,
-    "/": (v1, v2) => v1 / v2
+    "/": (v1, v2) => v1 / v2,
 };
 
 const booleanOpToFn = {
@@ -77,7 +78,7 @@ const booleanOpToFn = {
     "<": (v1, v2) => v1 < v2,
     ">=": (v1, v2) => v1 >= v2,
     "<=": (v1, v2) => v1 <= v2,
-    "==": (v1, v2) => v1 == v2
+    "==": (v1, v2) => v1 == v2,
 };
 
 const argVal = (vm, arg) => {
@@ -94,7 +95,7 @@ const findLabelPC = (vm, label) => {
     let pc = -1;
     for (i = 0; i < vm.commands.length; i++) {
         const command = vm.commands[i];
-        if (command.operator == "@" && command.arg.value == label) {
+        if (command.operator == "|" && command.arg.value == label) {
             pc = i;
             break;
         }
@@ -104,6 +105,10 @@ const findLabelPC = (vm, label) => {
 
 const jump = (vm, arg) => {
     let pc = -1;
+    if (arg === null) {
+        vm.pc == -1;
+        return;
+    }
     if (arg.type == "label") {
         pc = findLabelPC(vm, arg.value);
     } else {
@@ -120,66 +125,84 @@ const jump = (vm, arg) => {
 : - switch index
 +-/* - math
 || && < > <= >= == - logic
-? - jump to label
+? - if true jump to label
 ?! - if not true jump to label
-j - jump unconditional
+@ - jump unconditional
 = - assign
 . - wait till `n` next tick
 , - wait for full `n` ticks from when the operator was called
-| - register select
-l - label
-n v d r t c - registers
+n v d r t c s - register select
+| - label
+n v d r t c  s- registers
 s - special scale register - affects math. 0 is chromatic, 1 major, 2 minor
 */
 const step = async (system, vm) => {
-    const command = vm.commands[vm.pc];
-    switch (command.operator) {
-        case "+":
-        case "-":
-        case "*":
-        case "/":
-            const arg = argVal(vm, command.arg);
-            let currentRegisterVal = getRegister(vm, vm.cr);
-            setRegister(vm, vm.cr, mathOpToFn[command.operator](currentRegisterVal, arg));
-            break;
-        case ">":
-        case "<":
-        case ">=":
-        case "<=":
-        case "==":
-            setRegister(vm, "t", booleanOpToFn[command.operator](getRegister(vm, vm.cr), argVal(vm, command.arg)));
-            break;
-        case "s":
-            setRegister(vm, "s", argVal(vm, command.arg));
-            break;
-        case "=":
-            setRegister(vm, vm.cr, argVal(vm, command.arg));
-            break;
-        case ":":
-            vm.ri = argVal(vm, command.arg) % vm.registers.length;
-            break;
-        case "|":
-            vm.cr = command.arg.value;
-            break;
-        case "!":
-            system.midi.sendMsg({ type: "note_on", note: getRegister(vm, "n"), velocity: getRegister(vm, "v"), channel: getRegister(vm, "c") });
-            break;
-        case ".":
-            await system.clock.schedule(argVal(vm, command.arg));
-            break;
-        case "@":
-            break;
-        case "j":
-            jump(vm, command.arg);
-            break;
-        case "?":
-            getRegister(vm, "t") == true ? jump(vm, command.arg) : null;
-            break;
-        case "?!":
-            getRegister(vm, "t") == false ? jump(vm, command.arg) : null;
-            break;
+    try {
+        const command = vm.commands[vm.pc];
+        console.log(command, command.operator, vm.registers);
+        switch (command.operator) {
+            case "+":
+            case "-":
+            case "*":
+            case "/":
+                const arg = argVal(vm, command.arg);
+                let currentRegisterVal = getRegister(vm, vm.cr);
+                setRegister(
+                    vm,
+                    vm.cr,
+                    mathOpToFn[command.operator](currentRegisterVal, arg)
+                );
+                break;
+            case ">":
+            case "<":
+            case ">=":
+            case "<=":
+            case "==":
+                setRegister(
+                    vm,
+                    "t",
+                    booleanOpToFn[command.operator](
+                        getRegister(vm, vm.cr),
+                        argVal(vm, command.arg)
+                    )
+                );
+                break;
+            case "=":
+                setRegister(vm, vm.cr, argVal(vm, command.arg));
+                break;
+            case ":":
+                vm.ri = argVal(vm, command.arg) % vm.registers.length;
+                break;
+            case "reg":
+                vm.cr = command.arg.value;
+                break;
+            case "!":
+                system.midi.sendMsg({
+                    type: "note_on",
+                    note: getRegister(vm, "n"),
+                    velocity: getRegister(vm, "v"),
+                    channel: getRegister(vm, "c"),
+                });
+                break;
+            case ".":
+                await system.clock.schedule(argVal(vm, command.arg));
+                break;
+            case "|":
+                break;
+            case "@":
+                jump(vm, command.arg);
+                break;
+            case "?":
+                getRegister(vm, "t") == true ? jump(vm, command.arg) : null;
+                break;
+            case "?!":
+                getRegister(vm, "t") == false ? jump(vm, command.arg) : null;
+                break;
+        }
+        vm.pc += 1;
+    } catch (e) {
+        console.log("error:", e);
     }
-    vm.pc += 1;
 };
 
 const run = async (system, vm) => {
