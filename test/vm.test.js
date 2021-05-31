@@ -32,7 +32,7 @@ describe('Vm test', () => {
         expect(vm.getRegister(machine, "n")).to.equal(2);
     });
     it('should send midi on bang', async () => {
-        const parsed = parser.parse('+ 48 | v + 100 !');
+        const parsed = parser.parse('+ 48 v + 100 !');
         const machine = vm.init(parsed);
         const midi = { sendMsg: (msg) => expect(msg).to.deep.equal({ type: "note_on", note: 48, velocity: 100, channel: 0 }) };
         const system = { midi };
@@ -42,26 +42,28 @@ describe('Vm test', () => {
 
     });
     it('should jump unconditional', async () => {
-        const parsed = parser.parse('+ 42 j TEST + 100 @TEST');
+        const parsed = parser.parse('+ 42 @TEST + 100 |TEST');
         const machine = vm.init(parsed);
         await vm.run({}, machine);
         expect(vm.getRegister(machine, "n")).to.equal(42);
     });
     it('should jump if true', async () => {
-        const parsed = parser.parse('+ 42 > 40 ? TEST - 42 @TEST');
+        const parsed = parser.parse('+ 42 > 40 ? TEST - 42 |TEST');
         const machine = vm.init(parsed);
         await vm.run({}, machine);
         expect(vm.getRegister(machine, "n")).to.equal(42);
     });
     it('should jump if false', async () => {
-        const parsed = parser.parse('+ 42 < 40 ?! TEST - 42 @TEST');
+        const parsed = parser.parse('+ 42 < 40 ?! TEST - 42 |TEST');
         const machine = vm.init(parsed);
         await vm.run({}, machine);
         expect(vm.getRegister(machine, "n")).to.equal(42);
     });
     it('should respect scale register when doing math on n register', async () => {
-        const parsed = parser.parse('s 1 + 1 + 1 + 48');
+        const parsed = parser.parse('s = 1 n + 1 + 1 + 48');
         const machine = vm.init(parsed);
+        await vm.step({}, machine);
+        await vm.step({}, machine);
         await vm.step({}, machine);
         await vm.step({}, machine);
         expect(vm.getRegister(machine, "n")).to.equal(2);
@@ -71,7 +73,7 @@ describe('Vm test', () => {
         expect(vm.getRegister(machine, "n")).to.equal(52);
     });
     it('should call fn once', async () => {
-        const parsed = parser.parse('j CODE @ADDHUNDRED + 100 j z @CODE + 1 | z + 10 | n j ADDHUNDRED + 2');
+        const parsed = parser.parse('@CODE |ADDHUNDRED + 100 @ z |CODE + 1 z + 10 n @ADDHUNDRED + 2');
         const machine = vm.init(parsed);
         await vm.run({}, machine);
         expect(vm.getRegister(machine, "n")).to.equal(103);

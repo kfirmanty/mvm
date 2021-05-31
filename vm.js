@@ -139,7 +139,6 @@ s - special scale register - affects math. 0 is chromatic, 1 major, 2 minor
 const step = async (system, vm) => {
     try {
         const command = vm.commands[vm.pc];
-        console.log(command, command.operator, vm.registers);
         switch (command.operator) {
             case "+":
             case "-":
@@ -201,7 +200,7 @@ const step = async (system, vm) => {
         }
         vm.pc += 1;
     } catch (e) {
-        console.log("error:", e);
+        //console.log("error:", e);
     }
 };
 

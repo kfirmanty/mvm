@@ -6,16 +6,12 @@ const fs = require("fs");
 const ui = require("./ui/terminal.js");
 
 const [file, isDebug, ...rest] = process.argv.slice(2);
-const source = fs.readFileSync(file, "utf8");
+const source = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : file; // source can be passed as file or plain string
 const parsed = parser.parse(source);
-console.log(parsed);
 const machine = vm.init(parsed);
 const midiPort = midi.start({});
 const clock = scheduler.start({ tick: 200 });
 const system = { midi: midiPort, clock };
-
-//ui.init();
-//ui.drawVmState(machine);
 
 const runDebug = async () => {
     while (machine.pc < machine.commands.length) {

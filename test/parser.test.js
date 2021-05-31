@@ -4,11 +4,12 @@ const parser = require('../parser.js');
 
 describe('Parser tests', () => {
     it('should properly parse input', () => {
-        const parsed = parser.parse('! n 20 r');
+        const parsed = parser.parse('! n = 20 r');
         expect(parsed).to.deep.equal([
             { operator: '!' },
-            { operator: 'n', arg: { type: 'number', value: 20 } },
-            { operator: 'r' }
+            { operator: 'reg', arg: { type: 'register', value: 'n' } },
+            { operator: '=', arg: { type: 'number', value: 20 } },
+            { operator: 'reg', arg: { type: 'register', value: 'r' } }
         ]);
     });
     it('whitespace should be meaningless', () => {
