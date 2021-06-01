@@ -71,6 +71,7 @@ const mathOpToFn = {
     "-": (v1, v2) => v1 - v2,
     "*": (v1, v2) => v1 * v2,
     "/": (v1, v2) => v1 / v2,
+    "%": (v1, v2) => v1 % v2,
 };
 
 const booleanOpToFn = {
@@ -123,18 +124,19 @@ const jump = (vm, arg) => {
 /*
 ! - bang - send midi
 : - switch index
-+-/* - math
++-/*% - math
 || && < > <= >= == - logic
 ? - if true jump to label
 ?! - if not true jump to label
 @ - jump unconditional
 = - assign
 . - wait till `n` next tick
+\ - set timer units \4 is default and is 1/4 of bar. \16 would work on 16th
 , - wait for full `n` ticks from when the operator was called
-n v d r t c s - register select
-| - label
-n v d r t c  s- registers
+n v d r t c s x y z - register select
 s - special scale register - affects math. 0 is chromatic, 1 major, 2 minor
+| - label
+# - send midi cc, uses registers x and y
 */
 const step = async (system, vm) => {
     try {
@@ -144,6 +146,7 @@ const step = async (system, vm) => {
             case "-":
             case "*":
             case "/":
+            case "%":
                 const arg = argVal(vm, command.arg);
                 let currentRegisterVal = getRegister(vm, vm.cr);
                 setRegister(
@@ -182,6 +185,17 @@ const step = async (system, vm) => {
                     velocity: getRegister(vm, "v"),
                     channel: getRegister(vm, "c"),
                 });
+                break;
+            case "#":
+                system.midi.sendMsg({
+                    type: "cc",
+                    note: getRegister(vm, "x"),
+                    velocity: getRegister(vm, "y"),
+                    channel: getRegister(vm, "c"),
+                });
+                break;
+            case "\\":
+                system.clock.setDivision(argVal(vm, command.arg));
                 break;
             case ".":
                 await system.clock.schedule(argVal(vm, command.arg));

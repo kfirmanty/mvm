@@ -54,7 +54,8 @@ const parse = (text) => {
     while (tokens.length > 0) {
         const operator = pop(tokens);
         switch (operator) {
-            case "!": // no arg operators
+            case "!":
+            case "#": // no arg operators
                 commands.push({ operator });
                 break;
             case "|": //label
@@ -80,7 +81,7 @@ const parse = (text) => {
             case "r":
             case "x":
             case "y":
-            case "z": // registers take one arg or 0 depending if next token is register or number
+            case "z":
                 commands.push({
                     operator: "reg",
                     arg: { type: "register", value: operator },
