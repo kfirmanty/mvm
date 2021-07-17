@@ -113,4 +113,39 @@ const parse = (text) => {
     return commands;
 };
 
+const eatCurly = text => {
+    let token = text[0];
+    let match = "";
+    while (token != "}") {
+        match += token;
+        text = text.substring(1);
+        token = text[0];
+    }
+    return [text.substring(1), match.substring(1)];
+}
+
+const removeWhitespace = text => text
+    .replace(/\s+/g, "")
+    .replace(/\r?\n|\r/g);
+
+const isMachineSource = (text) => removeWhitespace(text)[0] == "{";
+
+const parseMachines = text => {
+    text = removeWhitespace(text);
+    let machines = {};
+    if (isMachineSource(text)) {
+        while (text != "") {
+            let res = eatCurly(text);
+            text = res[0];
+            machines[res[1][0]] = parse(res[1].substring(1));
+        }
+    } else {
+        machines = { "0": parse(text) }
+    }
+    return machines;
+}
+
 exports.parse = parse;
+exports.parseMachines = parseMachines;
+exports.removeWhitespace = removeWhitespace;
+exports.isMachineSource = isMachineSource;

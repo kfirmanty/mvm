@@ -1,7 +1,7 @@
-const start = ({ bar, useExternalClock }) => {
+const start = ({ singleBarTimeMs, useExternalClock }) => {
     let signals = [];
     const fullBarSteps = 128;
-    let clockStep = bar / fullBarSteps;
+    let clockStep = singleBarTimeMs / fullBarSteps;
     let division = 4;
     let singleUnitWaitSteps = fullBarSteps / division;
 

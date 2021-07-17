@@ -189,8 +189,8 @@ const step = async (system, vm) => {
             case "#":
                 system.midi.sendMsg({
                     type: "cc",
-                    note: getRegister(vm, "x"),
-                    velocity: getRegister(vm, "y"),
+                    cc: getRegister(vm, "x"),
+                    value: getRegister(vm, "y"),
                     channel: getRegister(vm, "c"),
                 });
                 break;
@@ -211,6 +211,7 @@ const step = async (system, vm) => {
             case "?!":
                 getRegister(vm, "t") == false ? jump(vm, command.arg) : null;
                 break;
+            default:
         }
         vm.pc += 1;
     } catch (e) {

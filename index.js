@@ -10,7 +10,7 @@ const source = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : file; // so
 const parsed = parser.parse(source);
 const machine = vm.init(parsed);
 const midiPort = midi.start({});
-const clock = scheduler.start({ tick: 1000 });
+const clock = scheduler.start({ singleBarTimeMs: 1000 });
 const system = { midi: midiPort, clock };
 
 const runDebug = async () => {
