@@ -22,6 +22,26 @@ const eat = (tokens, match) => {
     return str;
 };
 
+const eatCodeBlock = tokens => {
+    let openParens = 1;
+    let str = "";
+    while (peek(tokens)) {
+        if (peek(tokens) == "(") {
+            openParens += 1;
+        } else if (peek(tokens) == ")") {
+            openParens -= 1;
+            if (openParens < 1) {
+                pop(tokens);
+                break;
+            }
+        }
+        str += pop(tokens);
+    }
+    return str;
+}
+
+const consumeCodeBlock = tokens => ({ operator: "codeBlock", block: parse(eatCodeBlock(tokens)) })
+
 const eatUppercase = (tokens) => eat(tokens, /[A-Z]/);
 
 const eatNumber = (tokens) => eat(tokens, /\d/);
@@ -54,6 +74,9 @@ const parse = (text) => {
     while (tokens.length > 0) {
         const operator = pop(tokens);
         switch (operator) {
+            case "(":
+                commands.push(consumeCodeBlock(tokens));
+                break;
             case "!":
             case "#": // no arg operators
                 commands.push({ operator });

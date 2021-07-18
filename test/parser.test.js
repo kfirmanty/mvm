@@ -40,4 +40,68 @@ describe('Parser tests', () => {
             ]
         });
     });
+    it('code block should be properly parsed', () => {
+        expect(parser.parse('!(n=2)')).to.deep.equal([
+            {
+                "operator": "!"
+            },
+            {
+                "block": [
+                    {
+                        "arg": {
+                            "type": "register",
+                            "value": "n"
+                        },
+                        "operator": "reg"
+                    },
+                    {
+                        "arg": {
+                            "type": "number",
+                            "value": 2
+                        },
+                        "operator": "="
+                    }
+                ],
+                "operator": "codeBlock"
+            }
+        ]);
+    });
+    it('nested code blocks should be allowed', () => {
+        expect(parser.parse('!(n(+ 100)=2)')).to.deep.equal([
+            {
+                "operator": "!"
+            },
+            {
+                "block": [
+                    {
+                        "arg": {
+                            "type": "register",
+                            "value": "n"
+                        },
+                        "operator": "reg"
+                    },
+                    {
+                        "block": [
+                            {
+                                "arg": {
+                                    "type": "number",
+                                    "value": 100
+                                },
+                                "operator": "+"
+                            }
+                        ],
+                        "operator": "codeBlock"
+                    },
+                    {
+                        "arg": {
+                            "type": "number",
+                            "value": 2
+                        },
+                        "operator": "="
+                    }
+                ],
+                "operator": "codeBlock"
+            }
+        ]);
+    });
 });
