@@ -41,12 +41,12 @@ describe('Parser tests', () => {
         });
     });
     it('code block should be properly parsed', () => {
-        expect(parser.parse('!(n=2)')).to.deep.equal([
+        expect(parser.parse('!??(n=2)')).to.deep.equal([
             {
                 "operator": "!"
             },
             {
-                "block": [
+                "arg": [
                     {
                         "arg": {
                             "type": "register",
@@ -62,17 +62,17 @@ describe('Parser tests', () => {
                         "operator": "="
                     }
                 ],
-                "operator": "codeBlock"
+                "operator": "??"
             }
         ]);
     });
     it('nested code blocks should be allowed', () => {
-        expect(parser.parse('!(n(+ 100)=2)')).to.deep.equal([
+        expect(parser.parse('!??(n??!(+ 100)=2)')).to.deep.equal([
             {
                 "operator": "!"
             },
             {
-                "block": [
+                "arg": [
                     {
                         "arg": {
                             "type": "register",
@@ -81,7 +81,7 @@ describe('Parser tests', () => {
                         "operator": "reg"
                     },
                     {
-                        "block": [
+                        "arg": [
                             {
                                 "arg": {
                                     "type": "number",
@@ -90,7 +90,7 @@ describe('Parser tests', () => {
                                 "operator": "+"
                             }
                         ],
-                        "operator": "codeBlock"
+                        "operator": "??!"
                     },
                     {
                         "arg": {
@@ -100,7 +100,7 @@ describe('Parser tests', () => {
                         "operator": "="
                     }
                 ],
-                "operator": "codeBlock"
+                "operator": "??"
             }
         ]);
     });

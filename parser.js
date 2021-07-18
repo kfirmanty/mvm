@@ -40,8 +40,6 @@ const eatCodeBlock = tokens => {
     return str;
 }
 
-const consumeCodeBlock = tokens => ({ operator: "codeBlock", block: parse(eatCodeBlock(tokens)) })
-
 const eatUppercase = (tokens) => eat(tokens, /[A-Z]/);
 
 const eatNumber = (tokens) => eat(tokens, /\d/);
@@ -74,9 +72,6 @@ const parse = (text) => {
     while (tokens.length > 0) {
         const operator = pop(tokens);
         switch (operator) {
-            case "(":
-                commands.push(consumeCodeBlock(tokens));
-                break;
             case "!":
             case "#": // no arg operators
                 commands.push({ operator });
@@ -90,11 +85,22 @@ const parse = (text) => {
             case "?":
                 op = "?";
                 const next = peek(tokens);
-                if (next == "!") {
+                if (next == "?") { //codeblock if
                     pop(tokens);
-                    op = "?!";
+                    op = "??"
+                    if (peek(tokens) == "!") {
+                        pop(tokens);
+                        op = "??!";
+                    }
+                    pop(tokens) //removing first (, TODO: add validation that next token is codeblock start
+                    commands.push({ operator: op, arg: parse(eatCodeBlock(tokens)) });
+                } else {
+                    if (next == "!") {
+                        pop(tokens);
+                        op = "?!";
+                    }
+                    commands.push({ operator: op, arg: consumeLabel(tokens) });
                 }
-                commands.push({ operator: op, arg: consumeLabel(tokens) });
                 break;
             case "n":
             case "v":
