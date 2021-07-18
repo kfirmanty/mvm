@@ -211,7 +211,24 @@ const step = async (system, vm) => {
             case "?!":
                 getRegister(vm, "t") == false ? jump(vm, command.arg) : null;
                 break;
+            case "??":
+            case "??!":
+                if ((command.operator == "??" && getRegister(vm, "t") == true)
+                    || (command.operator == "??!" && getRegister(vm, "t") == false)) {
+                    let localCopy = Object.assign({}, vm);
+                    localCopy.pc = 0;
+                    localCopy.commands = command.arg;
+                    await run(system, localCopy);
+                    const pcBackup = vm.pc;
+                    const commandsBackup = vm.commands;
+                    Object.assign(vm, localCopy);
+                    vm.pc = pcBackup;
+                    vm.commands = commandsBackup;
+                }
+                break;
             default:
+                console.log("WARNING:", "unknown command " + command);
+                break;
         }
         vm.pc += 1;
     } catch (e) {

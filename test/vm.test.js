@@ -78,4 +78,22 @@ describe('Vm test', () => {
         await vm.run({}, machine);
         expect(vm.getRegister(machine, "n")).to.equal(103);
     });
+    it('should execute code block if true', async () => {
+        const parsed = parser.parse('+ 40 < 42 ?? (- 40) ');
+        const machine = vm.init(parsed);
+        await vm.run({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(0);
+    });
+    it('should skip code block if false', async () => {
+        const parsed = parser.parse('+ 40 > 42 ?? (- 40) ');
+        const machine = vm.init(parsed);
+        await vm.run({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(40);
+    });
+    it('should execute code block if false', async () => {
+        const parsed = parser.parse('+ 40 > 42 ??! (- 40) ');
+        const machine = vm.init(parsed);
+        await vm.run({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(0);
+    });
 });
