@@ -104,4 +104,31 @@ describe('Parser tests', () => {
             }
         ]);
     });
+    it('probability operator should consume two arguments', () => {
+        expect(parser.parse('p50(n=2)')).to.deep.equal([
+            {
+                "arg": [
+                    {
+                        "arg": {
+                            "type": "register",
+                            "value": "n"
+                        },
+                        "operator": "reg"
+                    },
+                    {
+                        "arg": {
+                            "type": "number",
+                            "value": 2
+                        },
+                        "operator": "="
+                    }
+                ],
+                "prob": {
+                    "type": "number",
+                    "value": 50
+                },
+                "operator": "p"
+            }
+        ]);
+    });
 });

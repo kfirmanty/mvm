@@ -18,6 +18,7 @@ const start = ({ singleBarTimeMs, useExternalClock }) => {
     }
 
     let cycle = 0;
+    let maxCycle = fullBarSteps * 64; //64 bars
     const tick = () => {
         let newsignals = [];
         for (let i = 0; i < signals.length; i++) {
@@ -29,6 +30,9 @@ const start = ({ singleBarTimeMs, useExternalClock }) => {
             }
         }
         cycle++;
+        if (cycle >= maxCycle) {
+            cycle = 0;
+        }
         signals = newsignals;
     };
     if (useExternalClock) {
@@ -36,7 +40,8 @@ const start = ({ singleBarTimeMs, useExternalClock }) => {
     } else {
         setInterval(tick, clockStep);
     }
-    return { schedule, setDivision };
+    const getCurrentBar = () => Math.floor(cycle / fullBarSteps);
+    return { schedule, setDivision, getCurrentBar };
 }
 
 module.exports = { start }

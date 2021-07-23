@@ -72,6 +72,11 @@ const parse = (text) => {
     while (tokens.length > 0) {
         const operator = pop(tokens);
         switch (operator) {
+            case "p":
+                const prob = consumeArg(tokens);
+                pop(tokens)
+                commands.push({ operator, prob, arg: parse(eatCodeBlock(tokens)) });
+                break;
             case "!":
             case "#": // no arg operators
                 commands.push({ operator });
@@ -79,8 +84,11 @@ const parse = (text) => {
             case "|": //label
             case "@": //jump unconditional
                 const nextToken = peek(tokens);
-                if (nextToken == "@") commands.push({ operator, arg: null });
-                else commands.push({ operator, arg: consumeArg(tokens) });
+                if (nextToken == "@") {
+                    commands.push({ operator, arg: null });
+                } else {
+                    commands.push({ operator, arg: consumeArg(tokens) });
+                }
                 break;
             case "?":
                 op = "?";
@@ -92,7 +100,7 @@ const parse = (text) => {
                         pop(tokens);
                         op = "??!";
                     }
-                    pop(tokens) //removing first (, TODO: add validation that next token is codeblock start
+                    pop(tokens); //removing first (, TODO: add validation that next token is codeblock start
                     commands.push({ operator: op, arg: parse(eatCodeBlock(tokens)) });
                 } else {
                     if (next == "!") {

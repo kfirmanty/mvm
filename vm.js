@@ -82,12 +82,17 @@ const booleanOpToFn = {
     "==": (v1, v2) => v1 == v2,
 };
 
-const argVal = (vm, arg) => {
+const argVal = (system, vm, arg) => {
     let argVal = 0;
     if (arg.type === "number") {
         argVal = arg.value;
+    } else if (arg.value == 'b') { //return current bar
+        argVal = system.clock.getCurrentBar();
     } else {
         argVal = getRegister(vm, arg.value);
+        if (arg.value == 'r') {
+            argVal = Math.floor(Math.random() * argVal);
+        }
     }
     return argVal;
 };
@@ -104,7 +109,7 @@ const findLabelPC = (vm, label) => {
     return pc;
 };
 
-const jump = (vm, arg) => {
+const jump = (system, vm, arg) => {
     let pc = -1;
     if (arg === null) {
         vm.pc == -1;
@@ -113,7 +118,7 @@ const jump = (vm, arg) => {
     if (arg.type == "label") {
         pc = findLabelPC(vm, arg.value);
     } else {
-        pc = argVal(vm, arg) - 1;
+        pc = argVal(system, vm, arg) - 1;
     }
     if (pc == -1) {
         throw new VMException(`couldn't find jump place for arg ${arg}`);
@@ -137,6 +142,8 @@ n v d r t c s x y z - register select
 s - special scale register - affects math. 0 is chromatic, 1 major, 2 minor
 | - label
 # - send midi cc, uses registers x and y
+b - get current bar number
+p - execute codeblock with percentage probability
 */
 const step = async (system, vm) => {
     try {
@@ -147,7 +154,7 @@ const step = async (system, vm) => {
             case "*":
             case "/":
             case "%":
-                const arg = argVal(vm, command.arg);
+                const arg = argVal(system, vm, command.arg);
                 let currentRegisterVal = getRegister(vm, vm.cr);
                 setRegister(
                     vm,
@@ -165,15 +172,15 @@ const step = async (system, vm) => {
                     "t",
                     booleanOpToFn[command.operator](
                         getRegister(vm, vm.cr),
-                        argVal(vm, command.arg)
+                        argVal(system, vm, command.arg)
                     )
                 );
                 break;
             case "=":
-                setRegister(vm, vm.cr, argVal(vm, command.arg));
+                setRegister(vm, vm.cr, argVal(system, vm, command.arg));
                 break;
             case ":":
-                vm.ri = argVal(vm, command.arg) % vm.registers.length;
+                vm.ri = argVal(system, vm, command.arg) % vm.registers.length;
                 break;
             case "reg":
                 vm.cr = command.arg.value;
@@ -195,26 +202,28 @@ const step = async (system, vm) => {
                 });
                 break;
             case "\\":
-                system.clock.setDivision(argVal(vm, command.arg));
+                system.clock.setDivision(argVal(system, vm, command.arg));
                 break;
             case ".":
-                await system.clock.schedule(argVal(vm, command.arg));
+                await system.clock.schedule(argVal(system, vm, command.arg));
                 break;
             case "|":
                 break;
             case "@":
-                jump(vm, command.arg);
+                jump(system, vm, command.arg);
                 break;
             case "?":
-                getRegister(vm, "t") == true ? jump(vm, command.arg) : null;
+                getRegister(vm, "t") == true ? jump(system, vm, command.arg) : null;
                 break;
             case "?!":
-                getRegister(vm, "t") == false ? jump(vm, command.arg) : null;
+                getRegister(vm, "t") == false ? jump(system, vm, command.arg) : null;
                 break;
             case "??":
             case "??!":
+            case "p":
                 if ((command.operator == "??" && getRegister(vm, "t") == true)
-                    || (command.operator == "??!" && getRegister(vm, "t") == false)) {
+                    || (command.operator == "??!" && getRegister(vm, "t") == false)
+                    || (command.operator == "p" && (Math.random() * 100) < argVal(system, vm, command.prob))) {
                     let localCopy = Object.assign({}, vm);
                     localCopy.pc = 0;
                     localCopy.commands = command.arg;
