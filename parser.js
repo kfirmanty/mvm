@@ -73,9 +73,10 @@ const parse = (text) => {
         const operator = pop(tokens);
         switch (operator) {
             case "p":
-                const prob = consumeArg(tokens);
+            case "b":
+                const value = consumeArg(tokens);
                 pop(tokens)
-                commands.push({ operator, prob, arg: parse(eatCodeBlock(tokens)) });
+                commands.push({ operator, value, arg: parse(eatCodeBlock(tokens)) });
                 break;
             case "!":
             case "#": // no arg operators

@@ -123,7 +123,7 @@ describe('Parser tests', () => {
                         "operator": "="
                     }
                 ],
-                "prob": {
+                "value": {
                     "type": "number",
                     "value": 50
                 },
