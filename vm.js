@@ -38,6 +38,8 @@ const scaleRegisterToScale = {
     0: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
     1: [0, 2, 4, 5, 7, 9, 11],
     2: [0, 2, 3, 5, 6, 7, 10],
+    3: [0, 4, 5, 7, 11],
+    4: [0, 3, 5, 7, 10],
 };
 const applyScaleRegister = (vm, val) => {
     const scaleVal = getRegister(vm, "s");

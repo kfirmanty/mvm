@@ -38,9 +38,7 @@ const readCode = () => {
                 machines[k] = machine;
                 run(system, machine);
             }
-
         });
-        //go through each machine from parsed, if already present replace code, if not then call init and run
         rl.write(input);
         readCode();
     });
