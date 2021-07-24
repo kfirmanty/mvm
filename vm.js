@@ -140,8 +140,11 @@ n v d r t c s x y z - register select
 s - special scale register - affects math. 0 is chromatic, 1 major, 2 minor
 | - label
 # - send midi cc, uses registers x and y
-b - get current bar number
 p - execute codeblock with percentage probability
+w - wait for machine
+n - notify machine
+b - execute when bar modulo arg == 0
+e - execute on every bar except when modulo arg == 0
 */
 const step = async (system, vm) => {
     try {
@@ -220,10 +223,12 @@ const step = async (system, vm) => {
             case "??!":
             case "p":
             case "b":
+            case "e":
                 if ((command.operator == "??" && getRegister(vm, "t") == true)
                     || (command.operator == "??!" && getRegister(vm, "t") == false)
                     || (command.operator == "p" && (Math.random() * 100) < argVal(vm, command.value))
-                    || (command.operator == "b" && (system.clock.getCurrentBar() % argVal(vm, command.value)) == 0)) {
+                    || (command.operator == "b" && (system.clock.getCurrentBar() % argVal(vm, command.value)) == 0)
+                    || (command.operator == "e" && (system.clock.getCurrentBar() % argVal(vm, command.value)) != 0)) {
                     let localCopy = Object.assign({}, vm);
                     localCopy.pc = 0;
                     localCopy.commands = command.arg;

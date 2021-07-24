@@ -72,8 +72,9 @@ const parse = (text) => {
     while (tokens.length > 0) {
         const operator = pop(tokens);
         switch (operator) {
-            case "p":
+            case "p": //operators working only on blocks
             case "b":
+            case "e":
                 const value = consumeArg(tokens);
                 pop(tokens)
                 commands.push({ operator, value, arg: parse(eatCodeBlock(tokens)) });
