@@ -4,16 +4,18 @@ const scheduler = require("./components/scheduler.js");
 const parser = require("./parser.js");
 const vm = require("./vm.js");
 
-const machine = vm.init(parser.parse(".128"));
+const parsed = parser.parseMachines("{0.128}");
+const machines = Object.fromEntries(Object.keys(parsed).map(k => [k, vm.init(parsed[k])]));
 const midiPort = midi.start({});
 const clock = scheduler.start({ singleBarTimeMs: 1000 });
 const system = { midi: midiPort, clock };
 
-const run = async () => {
-    while (true) await vm.run(system, machine);
+const run = async (system, machine) => {
+    await vm.run(system, machine);
+    run(system, machine)
 };
 
-run();
+Object.keys(machines).forEach(k => run(system, machines[k]));
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -27,7 +29,18 @@ const readCode = () => {
             process.exit();
         }
         input = code;
-        machine.commands = parser.parse(input);
+        let newMachinesCode = parser.parseMachines(input);
+        Object.keys(newMachinesCode).forEach(k => {
+            if (machines[k]) {
+                machines[k].commands = newMachinesCode[k];
+            } else {
+                let machine = vm.init(newMachinesCode[k]);
+                machines[k] = machine;
+                run(system, machine);
+            }
+
+        });
+        //go through each machine from parsed, if already present replace code, if not then call init and run
         rl.write(input);
         readCode();
     });
