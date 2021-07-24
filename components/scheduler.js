@@ -2,19 +2,13 @@ const start = ({ singleBarTimeMs, useExternalClock }) => {
     let signals = [];
     const fullBarSteps = 128;
     let clockStep = singleBarTimeMs / fullBarSteps;
-    let division = 4;
-    let singleUnitWaitSteps = fullBarSteps / division;
 
-    const schedule = ticks => {
+    const schedule = (ticks, division) => {
+        let singleUnitWaitSteps = fullBarSteps / division;
         const p = new Promise((resolve, reject) => {
             signals.push({ t: ticks * singleUnitWaitSteps, p: resolve });
         });
         return p;
-    }
-
-    const setDivision = div => {
-        division = div;
-        singleUnitWaitSteps = fullBarSteps / division;
     }
 
     let cycle = 0;
@@ -41,7 +35,7 @@ const start = ({ singleBarTimeMs, useExternalClock }) => {
         setInterval(tick, clockStep);
     }
     const getCurrentBar = () => Math.floor(cycle / fullBarSteps);
-    return { schedule, setDivision, getCurrentBar };
+    return { schedule, getCurrentBar };
 }
 
 module.exports = { start }

@@ -16,6 +16,7 @@ const init = (commands) => ({
     pc: 0,
     ri: 0, // registers index
     cr: "n", // current register
+    division: 4,
     registers: repeat(
         {
             n: 0, // note register
@@ -215,10 +216,10 @@ const step = async (system, vm) => {
                 });
                 break;
             case "\\":
-                system.clock.setDivision(argVal(vm, command.arg));
+                vm.division = argVal(vm, command.arg);
                 break;
             case ".":
-                await system.clock.schedule(argVal(vm, command.arg));
+                await system.clock.schedule(argVal(vm, command.arg), vm.division);
                 break;
             case "|":
                 break;
