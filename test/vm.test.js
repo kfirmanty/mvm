@@ -96,4 +96,10 @@ describe('Vm test', () => {
         await vm.run({}, machine);
         expect(vm.getRegister(machine, "n")).to.equal(0);
     });
+    it('should execute code block 3 times', async () => {
+        const parsed = parser.parse('+40R3(+1)');
+        const machine = vm.init(parsed);
+        await vm.run({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(43);
+    });
 });

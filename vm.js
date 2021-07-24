@@ -145,10 +145,22 @@ w - wait for machine
 n - notify machine
 b - execute when bar modulo arg == 0
 e - execute on every bar except when modulo arg == 0
+R - repeat code block arg times
 */
 const step = async (system, vm) => {
     try {
         const command = vm.commands[vm.pc];
+        const runCodeBlock = async () => {
+            let localCopy = Object.assign({}, vm);
+            localCopy.pc = 0;
+            localCopy.commands = command.arg;
+            await run(system, localCopy);
+            const pcBackup = vm.pc;
+            const commandsBackup = vm.commands;
+            Object.assign(vm, localCopy);
+            vm.pc = pcBackup;
+            vm.commands = commandsBackup;
+        }
         switch (command.operator) {
             case "+":
             case "-":
@@ -229,15 +241,12 @@ const step = async (system, vm) => {
                     || (command.operator == "p" && (Math.random() * 100) < argVal(vm, command.value))
                     || (command.operator == "b" && (system.clock.getCurrentBar() % argVal(vm, command.value)) == 0)
                     || (command.operator == "e" && (system.clock.getCurrentBar() % argVal(vm, command.value)) != 0)) {
-                    let localCopy = Object.assign({}, vm);
-                    localCopy.pc = 0;
-                    localCopy.commands = command.arg;
-                    await run(system, localCopy);
-                    const pcBackup = vm.pc;
-                    const commandsBackup = vm.commands;
-                    Object.assign(vm, localCopy);
-                    vm.pc = pcBackup;
-                    vm.commands = commandsBackup;
+                    await runCodeBlock();
+                }
+                break;
+            case "R":
+                for (let i = 0; i < argVal(vm, command.value); i++) {
+                    await runCodeBlock();
                 }
                 break;
             default:
