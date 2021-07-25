@@ -107,7 +107,7 @@ describe('Parser tests', () => {
     it('probability operator should consume two arguments', () => {
         expect(parser.parse('p50(n=2)')).to.deep.equal([
             {
-                "arg": [
+                "execute": [
                     {
                         "arg": {
                             "type": "register",
@@ -123,11 +123,54 @@ describe('Parser tests', () => {
                         "operator": "="
                     }
                 ],
-                "value": {
+                "probability": {
                     "type": "number",
                     "value": 50
                 },
                 "operator": "p"
+            }
+        ]);
+    });
+    it('probability operator can have optional thrid argument', () => {
+        expect(parser.parse('p?50(n=2)(n=4)')).to.deep.equal([
+            {
+                "execute": [
+                    {
+                        "arg": {
+                            "type": "register",
+                            "value": "n"
+                        },
+                        "operator": "reg"
+                    },
+                    {
+                        "arg": {
+                            "type": "number",
+                            "value": 2
+                        },
+                        "operator": "="
+                    }
+                ],
+                "elseExecute": [
+                    {
+                        "arg": {
+                            "type": "register",
+                            "value": "n"
+                        },
+                        "operator": "reg"
+                    },
+                    {
+                        "arg": {
+                            "type": "number",
+                            "value": 4
+                        },
+                        "operator": "="
+                    }
+                ],
+                "probability": {
+                    "type": "number",
+                    "value": 50
+                },
+                "operator": "p?"
             }
         ]);
     });

@@ -23,6 +23,7 @@ const eat = (tokens, match) => {
 };
 
 const eatCodeBlock = tokens => {
+    pop(tokens);
     let openParens = 1;
     let str = "";
     while (peek(tokens)) {
@@ -73,12 +74,23 @@ const parse = (text) => {
         const operator = pop(tokens);
         switch (operator) {
             case "p": //operators working only on blocks
+                if (peek(tokens) == "?") {
+                    pop(tokens);
+                    const probability = consumeArg(tokens);
+                    commands.push({ operator: "p?", probability, execute: parse(eatCodeBlock(tokens)), elseExecute: parse(eatCodeBlock(tokens)) });
+                } else {
+                    const probability = consumeArg(tokens);
+                    commands.push({ operator, probability, execute: parse(eatCodeBlock(tokens)) });
+                }
+                break;
+            case "R":
+                const repetitions = consumeArg(tokens);
+                commands.push({ operator, repetitions, arg: parse(eatCodeBlock(tokens)) });
+                break;
             case "b":
             case "e":
-            case "R":
-                const value = consumeArg(tokens);
-                pop(tokens)
-                commands.push({ operator, value, arg: parse(eatCodeBlock(tokens)) });
+                const bar = consumeArg(tokens);
+                commands.push({ operator, bar, arg: parse(eatCodeBlock(tokens)) });
                 break;
             case "!":
             case "#": // no arg operators
@@ -103,7 +115,6 @@ const parse = (text) => {
                         pop(tokens);
                         op = "??!";
                     }
-                    pop(tokens); //removing first (, TODO: add validation that next token is codeblock start
                     commands.push({ operator: op, arg: parse(eatCodeBlock(tokens)) });
                 } else {
                     if (next == "!") {

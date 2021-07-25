@@ -37,7 +37,7 @@ const init = (commands) => ({
 const scaleRegisterToScale = {
     0: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
     1: [0, 2, 4, 5, 7, 9, 11],
-    2: [0, 2, 3, 5, 6, 7, 10],
+    2: [0, 2, 3, 5, 7, 8, 10],
     3: [0, 4, 5, 7, 11],
     4: [0, 3, 5, 7, 10],
 };
@@ -153,10 +153,10 @@ R - repeat code block arg times
 const step = async (system, vm) => {
     try {
         const command = vm.commands[vm.pc];
-        const runCodeBlock = async () => {
+        const runCodeBlock = async (codeBlock) => {
             let localCopy = Object.assign({}, vm);
             localCopy.pc = 0;
-            localCopy.commands = command.arg;
+            localCopy.commands = codeBlock;//command.arg;
             await run(system, localCopy);
             const pcBackup = vm.pc;
             const commandsBackup = vm.commands;
@@ -234,22 +234,28 @@ const step = async (system, vm) => {
             case "?!":
                 getRegister(vm, "t") == false ? jump(vm, command.arg) : null;
                 break;
+            case "p":
+            case "p?":
+                if ((Math.random() * 100) < argVal(vm, command.probability)) {
+                    await runCodeBlock(command.execute);
+                } else if (command.elseExecute) {
+                    await runCodeBlock(command.elseExecute);
+                }
+                break;
             case "??":
             case "??!":
-            case "p":
             case "b":
             case "e":
                 if ((command.operator == "??" && getRegister(vm, "t") == true)
                     || (command.operator == "??!" && getRegister(vm, "t") == false)
-                    || (command.operator == "p" && (Math.random() * 100) < argVal(vm, command.value))
-                    || (command.operator == "b" && (system.clock.getCurrentBar() % argVal(vm, command.value)) == 0)
-                    || (command.operator == "e" && (system.clock.getCurrentBar() % argVal(vm, command.value)) != 0)) {
-                    await runCodeBlock();
+                    || (command.operator == "b" && (system.clock.getCurrentBar() % argVal(vm, command.bar)) == 0)
+                    || (command.operator == "e" && (system.clock.getCurrentBar() % argVal(vm, command.bar)) != 0)) {
+                    await runCodeBlock(command.arg);
                 }
                 break;
             case "R":
-                for (let i = 0; i < argVal(vm, command.value); i++) {
-                    await runCodeBlock();
+                for (let i = 0; i < argVal(vm, command.repetitions); i++) {
+                    await runCodeBlock(command.arg);
                 }
                 break;
             default:

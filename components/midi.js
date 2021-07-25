@@ -24,9 +24,16 @@ const sendMsg = (output, msg) => {
     }
 };
 
+const listOutputPorts = (output) => {
+    for (let i = 0; i < output.getPortCount(); i++) {
+        console.log(i + ":" + output.getPortName(i));
+    }
+}
+
 const start = (config) => {
     const output = new midi.Output();
     //output.openVirtualPort(config.name || 'mvm');
+    listOutputPorts(output);
     output.openPort(0);
     const sendMsgFn = (msg) => sendMsg(output, msg);
     return { output, sendMsg: sendMsgFn };
