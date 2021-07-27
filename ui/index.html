@@ -3,15 +3,16 @@
 
 <head>
     <meta charset="utf-8" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Barlow:wght@100;200;300;400;500;600;700&display=swap" />
     <link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css" />
+    <link rel="stylesheet" href="./cyberpunk.css" />
 </head>
 
 <body>
     <div>
-        <label for="code" class="f6 b db mb2">Code</span></label>
-        <textarea id="code" name="code" class="db border-box hover-black w-100 measure ba b--black-20 pa2 br2 mb2"
-            aria-describedby="code-desc">{0.4}</textarea>
-        <button class="f6 link dim ph3 pv2 mb2 dib white bg-black" onclick="sendCode()">execute!</button>
+        <textarea id="code" name="code" class="cyberpunk" aria-describedby="code-desc" rows="8">{0.4}</textarea>
+        <button class="cyberpunk2077 red" onclick="sendCode()">execute!</button>
     </div>
     <script>
         const ws = new WebSocket("ws://localhost:8080");
