@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css" />
+</head>
+
+<body>
+    <div>
+        <label for="code" class="f6 b db mb2">Code</span></label>
+        <textarea id="code" name="code" class="db border-box hover-black w-100 measure ba b--black-20 pa2 br2 mb2"
+            aria-describedby="code-desc">{0.4}</textarea>
+        <button class="f6 link dim ph3 pv2 mb2 dib white bg-black" onclick="sendCode()">execute!</button>
+    </div>
+    <script>
+        const ws = new WebSocket("ws://localhost:8080");
+        ws.onmessage = event => {
+            console.log("MSG", event);
+        };
+
+        ws.onopen = () => {
+            console.log("REMOTE CONTROL WEBSOCKET OPEN");
+        };
+
+        const sendCode = _ => {
+            ws.send(JSON.stringify({ code: document.getElementById("code").value }));
+        };
+    </script>
+</body>
+
+</html>

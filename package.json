@@ -7,7 +7,8 @@
     "test": "mocha"
   },
   "dependencies": {
-    "midi": "^1.0.3"
+    "midi": "^1.0.3",
+    "ws": "^7.5.3"
   },
   "author": "",
   "license": "ISC",
