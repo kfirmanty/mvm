@@ -6,7 +6,7 @@ const vm = require("./vm.js");
 
 const defaultCode = "{0.4}";
 const parsed = parser.parseMachines(defaultCode);
-const machines = Object.fromEntries(Object.keys(parsed).map(k => [k, vm.init(parsed[k])]));
+const machines = Object.fromEntries(Object.keys(parsed).map(k => [k, vm.init(parsed[k], k)]));
 const midiPort = midi.start({});
 const clock = scheduler.start({ singleBarTimeMs: 1000 });
 const system = { midi: midiPort, clock };

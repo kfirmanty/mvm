@@ -1,18 +1,43 @@
 const start = ({ singleBarTimeMs, useExternalClock }) => {
     let signals = [];
     const fullBarSteps = 128;
+    const maxCycle = fullBarSteps * 64; //64 bars
     let clockStep = singleBarTimeMs / fullBarSteps;
+    const waits = {};
+    let cycle = 0;
+
+    const padToNearestDivisionTick = (ticks, division) => {
+        let singleUnitWaitSteps = fullBarSteps / division;
+        let naiveTicks = ticks * singleUnitWaitSteps;
+        let naiveTarget = naiveTicks + cycle;
+        let off = naiveTarget % singleUnitWaitSteps;
+        let padding = off < singleUnitWaitSteps / 2 ? -off : off;
+        return naiveTicks + padding;
+    }
 
     const schedule = (ticks, division) => {
-        let singleUnitWaitSteps = fullBarSteps / division;
         const p = new Promise((resolve, reject) => {
-            signals.push({ t: ticks * singleUnitWaitSteps, p: resolve });
+            signals.push({ t: padToNearestDivisionTick(ticks, division), p: resolve });
         });
         return p;
     }
 
-    let cycle = 0;
-    let maxCycle = fullBarSteps * 64; //64 bars
+    const waitFor = id => {
+        if (!waits[id]) {
+            let resolveFn;
+            const p = new Promise((resolve, reject) => {
+                resolveFn = resolve;
+            });
+            waits[id].toWait = p;
+            waits[id].resolve = resolveFn;
+        }
+        return waits[id].toWait;
+    }
+
+    const notifyAll = callerId => {
+        waits[callerId]?.resolve();
+    }
+
     const tick = () => {
         let newsignals = [];
         for (let i = 0; i < signals.length; i++) {
@@ -35,7 +60,7 @@ const start = ({ singleBarTimeMs, useExternalClock }) => {
         setInterval(tick, clockStep);
     }
     const getCurrentBar = () => Math.floor(cycle / fullBarSteps);
-    return { schedule, getCurrentBar };
+    return { schedule, getCurrentBar, waitFor, notifyAll };
 }
 
 module.exports = { start }

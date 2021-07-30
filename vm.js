@@ -11,7 +11,8 @@ const repeat = (val, n) => {
     return arr;
 };
 
-const init = (commands) => ({
+const init = (commands, id) => ({
+    id,
     commands,
     pc: 0,
     ri: 0, // registers index
@@ -145,7 +146,7 @@ s - special scale register - affects math. 0 is chromatic, 1 major, 2 minor
 # - send midi cc, uses registers x and y
 p - execute codeblock with percentage probability
 w - wait for machine
-n - notify machine
+W - notify machine
 b - execute when bar modulo arg == 0
 e - execute on every bar except when modulo arg == 0
 R - repeat code block arg times
@@ -257,6 +258,12 @@ const step = async (system, vm) => {
                 for (let i = 0; i < argVal(vm, command.repetitions); i++) {
                     await runCodeBlock(command.arg);
                 }
+                break;
+            case "w":
+                await system.clock.waitFor(argVal(vm, command.arg));
+                break;
+            case "W":
+                system.clock.notifyAll(vm.id);
                 break;
             default:
                 console.log("WARNING:", "unknown command " + command);

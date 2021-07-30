@@ -7,6 +7,7 @@
     "test": "mocha"
   },
   "dependencies": {
+    "blessed": "^0.1.81",
     "midi": "^1.0.3",
     "ws": "^7.5.3"
   },

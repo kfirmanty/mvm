@@ -92,6 +92,7 @@ const parse = (text) => {
                 const bar = consumeArg(tokens);
                 commands.push({ operator, bar, arg: parse(eatCodeBlock(tokens)) });
                 break;
+            case "W":
             case "!":
             case "#": // no arg operators
                 commands.push({ operator });
