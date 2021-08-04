@@ -36,35 +36,43 @@ const init = (commands, id) => ({
 });
 
 const scaleRegisterToScale = {
-    0: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-    1: [0, 2, 4, 5, 7, 9, 11],
-    2: [0, 2, 3, 5, 7, 8, 10],
-    3: [0, 4, 5, 7, 11],
-    4: [0, 3, 5, 7, 10],
+    0: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    1: [0, 2, 4, 5, 7, 9, 11, 12],
+    2: [0, 2, 3, 5, 7, 8, 10, 12],
+    3: [0, 4, 5, 7, 11, 12],
+    4: [0, 3, 5, 7, 10, 12],
 };
-const applyScaleRegister = (vm, val) => {
+const applyScaleRegister = (vm, val, prevVal) => {
     const scaleVal = getRegister(vm, "s");
     if (scaleVal == 0) {
         return val;
     }
     const step = val % 12;
     const octave = Math.floor(val / 12);
-    let note = val;
     const scale = scaleRegisterToScale[scaleVal];
-    //find first equal scale step or bigger and reconstruct pitch
-    for (i = 0; i < scale.length; i++) {
-        if (scale[i] == step || scale[i] > step) {
-            note = scale[i] + octave * 12;
-            break;
+    let fromScale = 0;
+    if (val > prevVal) {
+        for (let i = 0; i < scale.length; i++) {
+            if (scale[i] == step || scale[i] > step) {
+                fromScale = scale[i];
+                break;
+            }
+        }
+    } else {
+        for (let i = scale.length - 1; i >= 0; i--) {
+            if (scale[i] == step || scale[i] < step) {
+                fromScale = scale[i];
+                break;
+            }
         }
     }
-    return note;
+    return fromScale + octave * 12;
 };
 
 const getRegister = (vm, register) => vm.registers[vm.ri][register];
 const setRegister = (vm, register, val) => {
     if (register == "n") {
-        vm.registers[vm.ri][register] = applyScaleRegister(vm, val);
+        vm.registers[vm.ri][register] = applyScaleRegister(vm, val, vm.registers[vm.ri][register]);
     } else {
         vm.registers[vm.ri][register] = val;
     }
@@ -259,11 +267,8 @@ const step = async (system, vm) => {
                     await runCodeBlock(command.arg);
                 }
                 break;
-            case "w":
-                await system.clock.waitFor(argVal(vm, command.arg));
-                break;
             case "W":
-                system.clock.notifyAll(vm.id);
+                system.clock.waitTillBar(argVal(vm, command.arg));
                 break;
             default:
                 console.log("WARNING:", "unknown command " + command);

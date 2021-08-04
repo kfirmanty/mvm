@@ -27,15 +27,17 @@ wss.on('connection', (ws) => {
         console.log('received: %s', message);
         message = JSON.parse(message);
         code = message.code;
-        let newMachinesCode = parser.parseMachines(code);
-        Object.keys(newMachinesCode).forEach(k => {
-            if (machines[k]) {
-                machines[k].commands = newMachinesCode[k];
-            } else {
-                let machine = vm.init(newMachinesCode[k]);
-                machines[k] = machine;
-                run(system, machine);
-            }
-        });
+        if (code) {
+            let newMachinesCode = parser.parseMachines(code);
+            Object.keys(newMachinesCode).forEach(k => {
+                if (machines[k]) {
+                    machines[k].commands = newMachinesCode[k];
+                } else {
+                    let machine = vm.init(newMachinesCode[k]);
+                    machines[k] = machine;
+                    run(system, machine);
+                }
+            });
+        }
     });
 });

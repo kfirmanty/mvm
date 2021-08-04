@@ -59,8 +59,8 @@ describe('Vm test', () => {
         await vm.run({}, machine);
         expect(vm.getRegister(machine, "n")).to.equal(42);
     });
-    it('should respect scale register when doing math on n register', async () => {
-        const parsed = parser.parse('s = 1 n + 1 + 1 + 48');
+    it('should respect scale register when doing math on n register - major', async () => {
+        const parsed = parser.parse('s = 1 n + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 38');
         const machine = vm.init(parsed);
         await vm.step({}, machine);
         await vm.step({}, machine);
@@ -70,7 +70,57 @@ describe('Vm test', () => {
         await vm.step({}, machine);
         expect(vm.getRegister(machine, "n")).to.equal(4);
         await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(5);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(7);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(9);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(11);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(12);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(14);
+        await vm.step({}, machine);
         expect(vm.getRegister(machine, "n")).to.equal(52);
+    });
+    it('should respect scale register when doing math on n register - minor', async () => {
+        const parsed = parser.parse('s = 2 n + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 37 - 37 -1 -1 -1 -1 -1');
+        const machine = vm.init(parsed);
+        await vm.step({}, machine);
+        await vm.step({}, machine);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(0);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(2);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(3);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(5);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(7);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(8);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(10);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(12);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(14);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(51);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(14);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(12);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(10);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(8);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(7);
+        await vm.step({}, machine);
+        expect(vm.getRegister(machine, "n")).to.equal(5);
     });
     it('should call fn once', async () => {
         const parsed = parser.parse('@CODE |ADDHUNDRED + 100 @ z |CODE + 1 z + 10 n @ADDHUNDRED + 2');

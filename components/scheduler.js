@@ -22,6 +22,10 @@ const start = ({ singleBarTimeMs, useExternalClock }) => {
         return p;
     }
 
+    const waitTillBar = bar => {
+
+    }
+
     const waitFor = id => {
         if (!waits[id]) {
             let resolveFn;
@@ -31,11 +35,14 @@ const start = ({ singleBarTimeMs, useExternalClock }) => {
             waits[id].toWait = p;
             waits[id].resolve = resolveFn;
         }
+        console.log("waitFor", id);
         return waits[id].toWait;
     }
 
     const notifyAll = callerId => {
+        console.log("notifyAll", callerId, waits[callerId]);
         waits[callerId]?.resolve();
+        waits[callerId] = null;
     }
 
     const tick = () => {
@@ -60,7 +67,7 @@ const start = ({ singleBarTimeMs, useExternalClock }) => {
         setInterval(tick, clockStep);
     }
     const getCurrentBar = () => Math.floor(cycle / fullBarSteps);
-    return { schedule, getCurrentBar, waitFor, notifyAll };
+    return { schedule, getCurrentBar, waitFor, notifyAll, waitTillBar };
 }
 
 module.exports = { start }

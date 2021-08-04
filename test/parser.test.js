@@ -174,4 +174,23 @@ describe('Parser tests', () => {
             }
         ]);
     });
+    it('should properly parse waitFor operator', () => {
+        expect(parser.parse('.4w0')).to.deep.equal([
+            {
+                "arg": {
+                    "type": "number",
+                    "value": 4,
+                },
+                "operator": "."
+            },
+            {
+                "arg": {
+                    "type": "number",
+                    "value": 0
+                },
+                "operator": "w"
+            }
+        ]
+        );
+    });
 });

@@ -1,11 +1,11 @@
 :root {
     --glitched-duration: 0.9s;
     --glitched-long-duration: 3s;
-    --yellow-color: #f9f002;
-    --yellow-color-opacity: #f9f00242;
+    --yellow-color: #32302f;
+    --yellow-color-opacity: #32302f42;
     --orange-color: #ff9800;
     --border-color: #8ae66e;
-    --red-color: #ff003c;
+    --red-color: #fa4933;
     --blue-color: #136377;
     --green-color: #446d44;
     --purple-color: purple;
@@ -21,6 +21,7 @@
     align-items: center;
     display: flex;
     justify-content: center;
+    color: #fdf5c0
   }
   
   body * {
