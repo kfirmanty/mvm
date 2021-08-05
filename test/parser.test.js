@@ -174,23 +174,63 @@ describe('Parser tests', () => {
             }
         ]);
     });
-    it('should properly parse waitFor operator', () => {
-        expect(parser.parse('.4w0')).to.deep.equal([
-            {
-                "arg": {
-                    "type": "number",
-                    "value": 4,
+    it('should properly parse waitTillBar operator', () => {
+        expect(parser.parseMachines('{0c=0v=100n=36!W1}')).to.deep.equal({
+            "0": [
+                {
+                    "arg": {
+                        "type": "register",
+                        "value": "c"
+                    },
+                    "operator": "reg"
                 },
-                "operator": "."
-            },
-            {
-                "arg": {
-                    "type": "number",
-                    "value": 0
+                {
+                    "arg": {
+                        "type": "number",
+                        "value": 0
+                    },
+                    "operator": "="
                 },
-                "operator": "w"
-            }
-        ]
+                {
+                    "arg": {
+                        "type": "register",
+                        "value": "v"
+                    },
+                    "operator": "reg"
+                },
+                {
+                    "arg": {
+                        "type": "number",
+                        "value": 100
+                    },
+                    "operator": "="
+                },
+                {
+                    "arg": {
+                        "type": "register",
+                        "value": "n"
+                    },
+                    "operator": "reg"
+                },
+                {
+                    "arg": {
+                        "type": "number",
+                        "value": 36
+                    },
+                    "operator": "="
+                },
+                {
+                    "operator": "!"
+                },
+                {
+                    "arg": {
+                        "type": "number",
+                        "value": 1
+                    },
+                    "operator": "W"
+                }
+            ]
+        }
         );
     });
 });

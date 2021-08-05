@@ -268,7 +268,7 @@ const step = async (system, vm) => {
                 }
                 break;
             case "W":
-                system.clock.waitTillBar(argVal(vm, command.arg));
+                await system.clock.waitTillBar(argVal(vm, command.arg));
                 break;
             default:
                 console.log("WARNING:", "unknown command " + command);
@@ -276,7 +276,7 @@ const step = async (system, vm) => {
         }
         vm.pc += 1;
     } catch (e) {
-        //console.log("error:", e);
+        console.log("error:", e);
     }
 };
 

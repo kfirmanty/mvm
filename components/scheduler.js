@@ -23,7 +23,11 @@ const start = ({ singleBarTimeMs, useExternalClock }) => {
     }
 
     const waitTillBar = bar => {
-
+        let t = (fullBarSteps - (cycle % fullBarSteps)) + ((bar - 1) * fullBarSteps);
+        const p = new Promise((resolve, reject) => {
+            signals.push({ t, p: resolve });
+        });
+        return p;
     }
 
     const waitFor = id => {
