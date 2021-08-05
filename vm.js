@@ -20,11 +20,11 @@ const init = (commands, id) => ({
     division: 4,
     registers: repeat(
         {
-            n: 0, // note register
-            v: 0, // velocity register
+            n: 36, // note register
+            v: 100, // velocity register
             d: 0, // duration register
             c: 0, // channel register
-            r: 0, // random register
+            r: 10, // random register
             t: 0, // boolean logic register
             s: 0, // scale register
             x: 0, // x,y,z general purpouse registers
